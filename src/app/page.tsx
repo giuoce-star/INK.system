@@ -5,7 +5,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import {
   Search, Bell, Plus, ArrowUpRight, ArrowDownRight,
-  Clock, ChevronRight, AlertTriangle, RefreshCw,
+  Clock, ChevronRight, AlertTriangle, RefreshCw, MessageCircle,
 } from "lucide-react"
 import { Sticker } from "@/components/stickers"
 
@@ -61,6 +61,9 @@ export default function Dashboard() {
   const [receitaMes, setReceitaMes] = useState(0)
   const [receitaMesAnterior, setReceitaMesAnterior] = useState(0)
   const [chart, setChart] = useState<{ label: string; valor: number }[]>([])
+  const [clientesInfo, setClientesInfo] = useState<{ id: string; nome: string; celular?: string; ultimaData: string | null; temFutura: boolean }[]>([])
+  const [janelaMeses, setJanelaMeses] = useState<1 | 3 | 6>(3)
+  const [msgPadrao, setMsgPadrao] = useState("")
 
   const load = useCallback(async () => {
     setErro(false)
@@ -84,6 +87,9 @@ export default function Dashboard() {
         { data: realizadas7d, error: e7 },
         { data: realizadasMes, error: e8 },
         { data: realizadasMesAnt, error: e9 },
+        { data: todosClientes, error: e10 },
+        { data: todasSessoes, error: e11 },
+        { data: cfg },
       ] = await Promise.all([
         supabase.from("clientes").select("*", { count: "exact", head: true }),
         supabase.from("clientes").select("*", { count: "exact", head: true }).gte("created_at", inicioMes),
@@ -94,9 +100,12 @@ export default function Dashboard() {
         supabase.from("sessoes").select("valor, data").eq("status", "realizada").gte("data", iso(seteDias)).lte("data", hoje),
         supabase.from("sessoes").select("valor").eq("status", "realizada").gte("data", inicioMes).lte("data", fimMes),
         supabase.from("sessoes").select("valor").eq("status", "realizada").gte("data", inicioMesAnt).lte("data", fimMesAnt),
+        supabase.from("clientes").select("id, nome, celular"),
+        supabase.from("sessoes").select("cliente_id, data"),
+        supabase.from("configuracoes").select("mensagem_whatsapp_padrao").eq("id", 1).maybeSingle(),
       ])
 
-      if (e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8 || e9) throw new Error("query")
+      if (e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8 || e9 || e10 || e11) throw new Error("query")
 
       setTotalClientes(totalC ?? 0)
       setNovosClientes(novosC ?? 0)
@@ -125,6 +134,22 @@ export default function Dashboard() {
         if (idx >= 0 && idx < 7) buckets[idx].valor += r.valor ?? 0
       }
       setChart(buckets)
+
+      // clientes sumidos + mensagem padrão do WhatsApp
+      const mapaCli = new Map<string, { ultima: string; futura: boolean }>()
+      for (const s of (todasSessoes as { cliente_id: string; data: string | null }[] | null) ?? []) {
+        if (!s.cliente_id) continue
+        const e = mapaCli.get(s.cliente_id) ?? { ultima: "", futura: false }
+        if (s.data && s.data > e.ultima) e.ultima = s.data
+        if (s.data && s.data >= hoje) e.futura = true
+        mapaCli.set(s.cliente_id, e)
+      }
+      setClientesInfo(((todosClientes as { id: string; nome: string; celular?: string }[] | null) ?? []).map(c => ({
+        id: c.id, nome: c.nome, celular: c.celular,
+        ultimaData: mapaCli.get(c.id)?.ultima || null,
+        temFutura: mapaCli.get(c.id)?.futura || false,
+      })))
+      setMsgPadrao((cfg as { mensagem_whatsapp_padrao?: string } | null)?.mensagem_whatsapp_padrao ?? "")
     } catch {
       setErro(true)
     } finally {
@@ -145,6 +170,25 @@ export default function Dashboard() {
   }
 
   const maxChart = Math.max(1, ...chart.map(c => c.valor))
+
+  const sumidos = useMemo(() => {
+    const corte = new Date(); corte.setMonth(corte.getMonth() - janelaMeses)
+    const corteStr = iso(corte)
+    return clientesInfo.filter(c => c.ultimaData && !c.temFutura && c.ultimaData <= corteStr)
+  }, [clientesInfo, janelaMeses])
+
+  function mesesDesde(dataStr: string) {
+    const d = new Date(dataStr + "T12:00:00"); const now = new Date()
+    return Math.max(1, (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth()))
+  }
+
+  function reativar(c: { nome: string; celular?: string }) {
+    if (!c.celular) return
+    const base = msgPadrao || "Oi {nome}! Senti sua falta por aqui — bora marcar a próxima tattoo? 😊"
+    const msg = base.replace("{nome}", c.nome).replace("{data}", "").replace("{horario}", "")
+    const num = c.celular.replace(/\D/g, "")
+    window.open(`https://wa.me/55${num}?text=${encodeURIComponent(msg)}`, "_blank")
+  }
 
   return (
     <div className="min-h-screen">
@@ -314,6 +358,56 @@ export default function Dashboard() {
             </section>
           </div>
         </div>
+
+        {/* ─── Sumidos — reativação ─── */}
+        <section className="flash-card p-5">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2.5">
+              <Sticker.Coracao size={22} />
+              <h2 className="text-base font-black tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>Sumidos — hora de reativar</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1 p-0.5 rounded-full" style={{ border: "2px solid var(--ink)" }}>
+                {([1, 3, 6] as const).map(m => (
+                  <button key={m} onClick={() => setJanelaMeses(m)}
+                    className="px-2.5 py-1 rounded-full text-xs font-bold transition-colors"
+                    style={janelaMeses === m ? { background: "var(--ink)", color: "var(--paper)" } : { color: "var(--muted-foreground)" }}>
+                    {m} {m === 1 ? "mês" : "meses"}
+                  </button>
+                ))}
+              </div>
+              {!loading && sumidos.length > 0 && <span className="flash-tag flash-tag--cancelado">{sumidos.length}</span>}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            {loading ? (
+              <p className="text-sm text-muted-foreground py-4">Carregando…</p>
+            ) : sumidos.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">Ninguém sumido nessa janela. Estúdio em dia! 🎉</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {sumidos.map(c => (
+                  <div key={c.id} className="flex items-center justify-between gap-3 rounded-xl px-4 py-3" style={{ border: "2px solid var(--ink)", background: "var(--paper)" }}>
+                    <div className="min-w-0">
+                      <Link href={`/clientes/${c.id}`} className="text-sm font-bold hover:underline truncate block">{c.nome}</Link>
+                      <p className="text-xs text-muted-foreground">
+                        {c.ultimaData ? `última sessão há ${mesesDesde(c.ultimaData)} ${mesesDesde(c.ultimaData) === 1 ? "mês" : "meses"}` : "sem sessão"}
+                      </p>
+                    </div>
+                    {c.celular && (
+                      <button onClick={() => reativar(c)}
+                        className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full text-white shrink-0 transition-transform hover:-translate-y-0.5"
+                        style={{ background: "var(--flash-teal)", border: "2px solid var(--ink)" }}>
+                        <MessageCircle size={13} /> Reativar
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   )
