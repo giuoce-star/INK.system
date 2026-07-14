@@ -66,6 +66,19 @@ create table tatuagens (
   created_at timestamptz default now()
 );
 
+-- Orçamentos (propostas por cliente)
+create table orcamentos (
+  id uuid primary key default gen_random_uuid(),
+  cliente_id uuid references clientes(id) on delete cascade,
+  descricao text,
+  valor numeric(10,2),
+  status text not null default 'pendente'
+    check (status in ('pendente', 'aprovado', 'recusado')),
+  validade date,
+  observacoes text,
+  created_at timestamptz default now()
+);
+
 create table configuracoes (
   id integer primary key default 1,
   mensagem_whatsapp_padrao text

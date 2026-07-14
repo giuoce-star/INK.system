@@ -62,3 +62,14 @@ export interface FotoSessao {
   url: string
   created_at?: string
 }
+
+export interface Orcamento {
+  id: string
+  cliente_id: string
+  descricao?: string
+  valor?: number
+  status?: 'pendente' | 'aprovado' | 'recusado'
+  validade?: string
+  observacoes?: string
+  created_at?: string
+}

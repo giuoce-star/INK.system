@@ -65,6 +65,7 @@ export default function Dashboard() {
   const [clientesInfo, setClientesInfo] = useState<{ id: string; nome: string; celular?: string; nascimento?: string; ultimaData: string | null; temFutura: boolean }[]>([])
   const [janelaMeses, setJanelaMeses] = useState<1 | 3 | 6>(3)
   const [msgPadrao, setMsgPadrao] = useState("")
+  const [orcPendentes, setOrcPendentes] = useState<{ id: string; valor?: number; clientes: { nome: string } | null }[]>([])
 
   const load = useCallback(async () => {
     setErro(false)
@@ -91,6 +92,7 @@ export default function Dashboard() {
         { data: todosClientes, error: e10 },
         { data: todasSessoes, error: e11 },
         { data: cfg },
+        { data: orcRows },
       ] = await Promise.all([
         supabase.from("clientes").select("*", { count: "exact", head: true }),
         supabase.from("clientes").select("*", { count: "exact", head: true }).gte("created_at", inicioMes),
@@ -104,6 +106,7 @@ export default function Dashboard() {
         supabase.from("clientes").select("id, nome, celular, data_nascimento"),
         supabase.from("sessoes").select("cliente_id, data"),
         supabase.from("configuracoes").select("mensagem_whatsapp_padrao").eq("id", 1).maybeSingle(),
+        supabase.from("orcamentos").select("id, valor, clientes(nome)").eq("status", "pendente").order("created_at", { ascending: false }).limit(6),
       ])
 
       if (e1 || e2 || e3 || e4 || e5 || e6 || e7 || e8 || e9 || e10 || e11) throw new Error("query")
@@ -151,6 +154,7 @@ export default function Dashboard() {
         temFutura: mapaCli.get(c.id)?.futura || false,
       })))
       setMsgPadrao((cfg as { mensagem_whatsapp_padrao?: string } | null)?.mensagem_whatsapp_padrao ?? "")
+      setOrcPendentes((orcRows as unknown as { id: string; valor?: number; clientes: { nome: string } | null }[]) ?? [])
     } catch {
       setErro(true)
     } finally {
@@ -266,9 +270,9 @@ export default function Dashboard() {
             <Link href="/sessoes/nova" className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold text-white transition-transform hover:-translate-y-0.5" style={{ background: "var(--flash-red)", border: "2px solid var(--ink)", boxShadow: "3px 3px 0 0 var(--ink)", fontFamily: "'Syne', sans-serif" }}>
               <Plus size={16} strokeWidth={2.5} /> Novo agendamento
             </Link>
-            <button className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-transform hover:-translate-y-0.5" style={{ background: "var(--card)", border: "2px solid var(--ink)", boxShadow: "3px 3px 0 0 var(--ink)", fontFamily: "'Syne', sans-serif" }}>
+            <Link href="/orcamentos/novo" className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-transform hover:-translate-y-0.5" style={{ background: "var(--card)", border: "2px solid var(--ink)", boxShadow: "3px 3px 0 0 var(--ink)", fontFamily: "'Syne', sans-serif" }}>
               <Plus size={16} strokeWidth={2.5} /> Novo orçamento
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -370,10 +374,25 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* Orçamentos pendentes — em breve */}
+            {/* Orçamentos pendentes */}
             <section className="flash-card p-5">
-              <SectionTitle icon={<Sticker.Ancora size={20} />} title="Orçamentos pendentes" right={<span className="text-[8px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">em breve</span>} />
-              <p className="mt-3 text-sm text-muted-foreground">Módulo de orçamentos em construção.</p>
+              <SectionTitle icon={<Sticker.Ancora size={20} />} title="Orçamentos pendentes" right={
+                orcPendentes.length > 0
+                  ? <span className="flash-tag flash-tag--orcamento">{orcPendentes.length}</span>
+                  : <Link href="/orcamentos" className="text-xs font-bold text-primary hover:underline">Ver todos</Link>
+              } />
+              <div className="mt-3 space-y-1">
+                {loading ? (
+                  <p className="text-sm text-muted-foreground py-2">Carregando…</p>
+                ) : orcPendentes.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">Nenhum orçamento pendente.</p>
+                ) : orcPendentes.map(o => (
+                  <Link key={o.id} href={`/orcamentos/${o.id}`} className="flex items-center justify-between py-2 border-t first:border-0" style={{ borderColor: "var(--border)" }}>
+                    <span className="text-sm font-semibold hover:underline truncate">{o.clientes?.nome ?? "—"}</span>
+                    <span className="text-sm font-black tabular-nums shrink-0 ml-2" style={{ fontFamily: "'Syne', sans-serif" }}>R$ {(o.valor ?? 0).toLocaleString("pt-BR")}</span>
+                  </Link>
+                ))}
+              </div>
             </section>
 
             {/* Estoque baixo — em breve */}

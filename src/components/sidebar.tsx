@@ -17,7 +17,7 @@ const nav: NavItem[] = [
   { href: "/sessoes", label: "Agenda", icon: Calendar },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "#", label: "Projetos", icon: Brush, soon: true },
-  { href: "#", label: "Orçamentos", icon: FileText, soon: true },
+  { href: "/orcamentos", label: "Orçamentos", icon: FileText },
   { href: "#", label: "Financeiro", icon: Wallet, soon: true },
   { href: "#", label: "Estoque", icon: Package, soon: true },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
