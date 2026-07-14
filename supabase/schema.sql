@@ -41,7 +41,7 @@ create table sessoes (
   horario time,
   valor numeric(10,2),
   status text not null default 'agendada'
-    check (status in ('agendada', 'realizada', 'remarcada')),
+    check (status in ('agendada', 'realizada', 'remarcada', 'faltou')),
   observacoes text,
   created_at timestamptz default now()
 );

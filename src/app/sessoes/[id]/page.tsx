@@ -10,13 +10,14 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Trash2, Save, ArrowLeft, MessageCircle, CheckCircle2 } from "lucide-react"
+import { Trash2, Save, ArrowLeft, MessageCircle, CheckCircle2, XCircle } from "lucide-react"
 import Link from "next/link"
 
 const statusConfig = {
   agendada:  { label: "Agendada",  cls: "flash-tag--pendente" },
   realizada: { label: "Realizada", cls: "flash-tag--confirmado" },
   remarcada: { label: "Remarcada", cls: "flash-tag--orcamento" },
+  faltou:    { label: "Faltou",    cls: "flash-tag--cancelado" },
 }
 
 export default function SessaoDetalhePage() {
@@ -59,6 +60,14 @@ export default function SessaoDetalhePage() {
     setMarcando(true)
     await supabase.from("sessoes").update({ status: "realizada" }).eq("id", id)
     setSessao(s => s ? { ...s, status: "realizada" } : s)
+    setMarcando(false)
+  }
+
+  async function marcarFaltou() {
+    if (!sessao) return
+    setMarcando(true)
+    await supabase.from("sessoes").update({ status: "faltou" }).eq("id", id)
+    setSessao(s => s ? { ...s, status: "faltou" } : s)
     setMarcando(false)
   }
 
@@ -153,6 +162,19 @@ export default function SessaoDetalhePage() {
           >
             <CheckCircle2 size={14} />
             {marcando ? "Salvando..." : "Marcar como realizada"}
+          </Button>
+        )}
+
+        {status !== "faltou" && status !== "realizada" && (
+          <Button
+            onClick={marcarFaltou}
+            disabled={marcando}
+            variant="outline"
+            className="gap-2"
+            style={{ borderColor: "var(--ink)", color: "var(--flash-red)" }}
+          >
+            <XCircle size={14} />
+            {marcando ? "Salvando..." : "Marcar falta"}
           </Button>
         )}
       </div>

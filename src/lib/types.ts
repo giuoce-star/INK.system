@@ -39,7 +39,7 @@ export interface Sessao {
   horario?: string
   valor?: number
   observacoes?: string
-  status?: 'agendada' | 'realizada' | 'remarcada'
+  status?: 'agendada' | 'realizada' | 'remarcada' | 'faltou'
   created_at?: string
 }
 

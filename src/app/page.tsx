@@ -11,7 +11,7 @@ import { Sticker } from "@/components/stickers"
 
 /* ───────────────────────── Tipos ───────────────────────── */
 
-type StatusSessao = "agendada" | "realizada" | "remarcada"
+type StatusSessao = "agendada" | "realizada" | "remarcada" | "faltou"
 
 interface SessaoRow {
   id: string
@@ -36,6 +36,7 @@ function StatusTag({ status }: { status?: StatusSessao }) {
     agendada: { cls: "pendente", label: "Agendada" },
     realizada: { cls: "confirmado", label: "Realizada" },
     remarcada: { cls: "orcamento", label: "Remarcada" },
+    faltou: { cls: "cancelado", label: "Faltou" },
   }
   const s = map[status ?? "agendada"] ?? map.agendada
   return <span className={`flash-tag flash-tag--${s.cls}`}>{s.label}</span>

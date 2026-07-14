@@ -63,9 +63,9 @@ export default function RelatoriosPage() {
     const comDuas = [...porCli.values()].filter(n => n >= 2).length
     const taxaRetorno = comUma ? Math.round((comDuas / comUma) * 100) : 0
 
-    // comparecimento (proxy): realizadas / (realizadas + agendadas vencidas)
-    const vencidasNaoRealizadas = ses.filter(s => s.status === "agendada" && s.data && s.data < hoje).length
-    const denom = realizadas.length + vencidasNaoRealizadas
+    // comparecimento: realizadas / (realizadas + faltas registradas)
+    const faltas = ses.filter(s => s.status === "faltou").length
+    const denom = realizadas.length + faltas
     const comparecimento = denom ? Math.round((realizadas.length / denom) * 100) : 100
 
     // sumidos: última sessão > 3 meses e sem futura
