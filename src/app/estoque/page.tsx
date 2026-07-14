@@ -6,8 +6,20 @@ import type { ItemEstoque } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Minus, Trash2, AlertTriangle, Package } from "lucide-react"
 import { Sticker } from "@/components/stickers"
+
+const CATEGORIAS = [
+  "Descartáveis",
+  "Agulhas & biqueiras",
+  "Tintas",
+  "Higiene & assepsia",
+  "Aftercare",
+  "Equipamentos",
+  "Papelaria",
+  "Outros",
+]
 
 export default function EstoquePage() {
   const supabase = useMemo(() => createClient(), [])
@@ -77,7 +89,15 @@ export default function EstoquePage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <div className="space-y-1.5 col-span-2 md:col-span-2"><Label>Material</Label><Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: Biqueira 7RL" /></div>
-          <div className="space-y-1.5"><Label>Categoria</Label><Input value={categoria} onChange={e => setCategoria(e.target.value)} placeholder="Descartável" /></div>
+          <div className="space-y-1.5">
+            <Label>Categoria</Label>
+            <Select value={categoria} onValueChange={v => setCategoria(v ?? "")}>
+              <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+              <SelectContent>
+                {CATEGORIAS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-1.5"><Label>Qtd</Label><Input type="number" value={quantidade} onChange={e => setQuantidade(e.target.value)} placeholder="0" /></div>
           <div className="space-y-1.5"><Label>Mínimo</Label><Input type="number" value={minimo} onChange={e => setMinimo(e.target.value)} placeholder="0" /></div>
         </div>
