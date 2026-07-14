@@ -18,7 +18,7 @@ const nav: NavItem[] = [
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "#", label: "Projetos", icon: Brush, soon: true },
   { href: "/orcamentos", label: "Orçamentos", icon: FileText },
-  { href: "#", label: "Financeiro", icon: Wallet, soon: true },
+  { href: "/financeiro", label: "Financeiro", icon: Wallet },
   { href: "#", label: "Estoque", icon: Package, soon: true },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/configuracoes", label: "Configurações", icon: Settings },

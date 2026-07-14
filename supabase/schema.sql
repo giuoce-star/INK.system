@@ -79,6 +79,18 @@ create table orcamentos (
   created_at timestamptz default now()
 );
 
+-- Financeiro (livro-caixa: entradas e saídas)
+create table lancamentos (
+  id uuid primary key default gen_random_uuid(),
+  tipo text not null check (tipo in ('entrada', 'saida')),
+  descricao text,
+  categoria text,
+  valor numeric(10,2) not null default 0,
+  data date not null default current_date,
+  pago boolean not null default true,
+  created_at timestamptz default now()
+);
+
 create table configuracoes (
   id integer primary key default 1,
   mensagem_whatsapp_padrao text

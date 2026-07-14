@@ -73,3 +73,14 @@ export interface Orcamento {
   observacoes?: string
   created_at?: string
 }
+
+export interface Lancamento {
+  id: string
+  tipo: 'entrada' | 'saida'
+  descricao?: string
+  categoria?: string
+  valor: number
+  data: string
+  pago: boolean
+  created_at?: string
+}
