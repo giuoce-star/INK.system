@@ -10,7 +10,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Trash2, ShieldAlert } from "lucide-react"
+
+const INDICACAO_OPCOES = [
+  "Instagram", "Indicação de amigo", "Google", "Passei na frente", "TikTok", "Facebook", "Outro",
+]
 
 interface Props {
   cliente?: Cliente
@@ -171,7 +176,12 @@ export function ClienteForm({ cliente, anamnese, tatuagens: tatuagensIniciais }:
               </div>
               <div className="space-y-1.5">
                 <Label>Indicação</Label>
-                <Input value={dados.indicacao ?? ""} onChange={e => setDado("indicacao", e.target.value)} placeholder="Como nos conheceu?" />
+                <Select value={dados.indicacao ?? ""} onValueChange={v => setDado("indicacao", v ?? "")}>
+                  <SelectTrigger><SelectValue placeholder="Como nos conheceu?" /></SelectTrigger>
+                  <SelectContent>
+                    {INDICACAO_OPCOES.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="md:col-span-2 space-y-2 pt-2">
                 <BoolField label="Termo aceito?" name="termo_aceito" value={!!dados.termo_aceito} onChange={setDado} />

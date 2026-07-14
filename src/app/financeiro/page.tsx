@@ -6,8 +6,12 @@ import type { Lancamento } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight, Plus, Trash2, ArrowUpRight, ArrowDownRight, Check } from "lucide-react"
 import { Sticker } from "@/components/stickers"
+
+const CAT_ENTRADA = ["Tatuagem", "Sinal / entrada", "Venda de produto", "Outros"]
+const CAT_SAIDA = ["Material", "Aluguel", "Energia", "Marketing", "Impostos", "Comissão", "Manutenção", "Outros"]
 
 const brl = (v: number) => `R$ ${Math.round(v).toLocaleString("pt-BR")}`
 const mesNome = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
@@ -131,7 +135,7 @@ export default function FinanceiroPage() {
         </div>
         <div className="flex gap-2 mb-4">
           {(["entrada", "saida"] as const).map(t => (
-            <button key={t} onClick={() => setTipo(t)}
+            <button key={t} onClick={() => { setTipo(t); setCategoria("") }}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-bold transition-colors"
               style={tipo === t
                 ? { background: t === "entrada" ? "var(--flash-teal)" : "var(--flash-red)", color: "#fff", border: "2px solid var(--ink)" }
@@ -143,7 +147,15 @@ export default function FinanceiroPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-1.5"><Label>Descrição</Label><Input value={descricao} onChange={e => setDescricao(e.target.value)} placeholder={tipo === "entrada" ? "Ex: Sessão Lucas" : "Ex: Tinta preta"} /></div>
-          <div className="space-y-1.5"><Label>Categoria</Label><Input value={categoria} onChange={e => setCategoria(e.target.value)} placeholder={tipo === "entrada" ? "Tatuagem" : "Material"} /></div>
+          <div className="space-y-1.5">
+            <Label>Categoria</Label>
+            <Select value={categoria} onValueChange={v => setCategoria(v ?? "")}>
+              <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+              <SelectContent>
+                {(tipo === "entrada" ? CAT_ENTRADA : CAT_SAIDA).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-1.5"><Label>Valor (R$)</Label><Input type="number" step="0.01" value={valor} onChange={e => setValor(e.target.value)} placeholder="0,00" /></div>
           <div className="space-y-1.5"><Label>Data</Label><Input type="date" value={data} onChange={e => setData(e.target.value)} /></div>
         </div>
