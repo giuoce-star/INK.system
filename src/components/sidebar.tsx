@@ -19,7 +19,7 @@ const nav: NavItem[] = [
   { href: "#", label: "Projetos", icon: Brush, soon: true },
   { href: "/orcamentos", label: "Orçamentos", icon: FileText },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
-  { href: "#", label: "Estoque", icon: Package, soon: true },
+  { href: "/estoque", label: "Estoque", icon: Package },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ]

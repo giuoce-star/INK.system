@@ -84,3 +84,13 @@ export interface Lancamento {
   pago: boolean
   created_at?: string
 }
+
+export interface ItemEstoque {
+  id: string
+  nome: string
+  categoria?: string
+  quantidade: number
+  unidade?: string
+  minimo: number
+  created_at?: string
+}

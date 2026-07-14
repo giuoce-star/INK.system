@@ -91,6 +91,17 @@ create table lancamentos (
   created_at timestamptz default now()
 );
 
+-- Estoque de materiais
+create table estoque (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  categoria text,
+  quantidade numeric not null default 0,
+  unidade text default 'un',
+  minimo numeric not null default 0,
+  created_at timestamptz default now()
+);
+
 create table configuracoes (
   id integer primary key default 1,
   mensagem_whatsapp_padrao text
