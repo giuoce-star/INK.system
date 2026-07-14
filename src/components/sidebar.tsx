@@ -20,7 +20,7 @@ const nav: NavItem[] = [
   { href: "#", label: "Orçamentos", icon: FileText, soon: true },
   { href: "#", label: "Financeiro", icon: Wallet, soon: true },
   { href: "#", label: "Estoque", icon: Package, soon: true },
-  { href: "#", label: "Relatórios", icon: BarChart3, soon: true },
+  { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ]
 

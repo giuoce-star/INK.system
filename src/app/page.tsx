@@ -61,7 +61,7 @@ export default function Dashboard() {
   const [receitaMes, setReceitaMes] = useState(0)
   const [receitaMesAnterior, setReceitaMesAnterior] = useState(0)
   const [chart, setChart] = useState<{ label: string; valor: number }[]>([])
-  const [clientesInfo, setClientesInfo] = useState<{ id: string; nome: string; celular?: string; ultimaData: string | null; temFutura: boolean }[]>([])
+  const [clientesInfo, setClientesInfo] = useState<{ id: string; nome: string; celular?: string; nascimento?: string; ultimaData: string | null; temFutura: boolean }[]>([])
   const [janelaMeses, setJanelaMeses] = useState<1 | 3 | 6>(3)
   const [msgPadrao, setMsgPadrao] = useState("")
 
@@ -100,7 +100,7 @@ export default function Dashboard() {
         supabase.from("sessoes").select("valor, data").eq("status", "realizada").gte("data", iso(seteDias)).lte("data", hoje),
         supabase.from("sessoes").select("valor").eq("status", "realizada").gte("data", inicioMes).lte("data", fimMes),
         supabase.from("sessoes").select("valor").eq("status", "realizada").gte("data", inicioMesAnt).lte("data", fimMesAnt),
-        supabase.from("clientes").select("id, nome, celular"),
+        supabase.from("clientes").select("id, nome, celular, data_nascimento"),
         supabase.from("sessoes").select("cliente_id, data"),
         supabase.from("configuracoes").select("mensagem_whatsapp_padrao").eq("id", 1).maybeSingle(),
       ])
@@ -144,8 +144,8 @@ export default function Dashboard() {
         if (s.data && s.data >= hoje) e.futura = true
         mapaCli.set(s.cliente_id, e)
       }
-      setClientesInfo(((todosClientes as { id: string; nome: string; celular?: string }[] | null) ?? []).map(c => ({
-        id: c.id, nome: c.nome, celular: c.celular,
+      setClientesInfo(((todosClientes as { id: string; nome: string; celular?: string; data_nascimento?: string }[] | null) ?? []).map(c => ({
+        id: c.id, nome: c.nome, celular: c.celular, nascimento: c.data_nascimento || undefined,
         ultimaData: mapaCli.get(c.id)?.ultima || null,
         temFutura: mapaCli.get(c.id)?.futura || false,
       })))
@@ -180,6 +180,30 @@ export default function Dashboard() {
   function mesesDesde(dataStr: string) {
     const d = new Date(dataStr + "T12:00:00"); const now = new Date()
     return Math.max(1, (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth()))
+  }
+
+  // dias até o próximo aniversário (0 = hoje)
+  function diasAteAniversario(nasc: string) {
+    const p = nasc.split("-"); const mes = +p[1], dia = +p[2]
+    const hj = new Date(); hj.setHours(0, 0, 0, 0)
+    let prox = new Date(hj.getFullYear(), mes - 1, dia)
+    if (prox < hj) prox = new Date(hj.getFullYear() + 1, mes - 1, dia)
+    return Math.round((prox.getTime() - hj.getTime()) / 86400000)
+  }
+
+  const aniversariantes = useMemo(() => {
+    return clientesInfo
+      .filter(c => c.nascimento)
+      .map(c => ({ ...c, dias: diasAteAniversario(c.nascimento!) }))
+      .filter(c => c.dias <= 7)
+      .sort((a, b) => a.dias - b.dias)
+  }, [clientesInfo])
+
+  function parabenizar(c: { nome: string; celular?: string }) {
+    if (!c.celular) return
+    const msg = `Parabéns, ${c.nome}! 🎉 Passando pra desejar tudo de bom no seu dia. Que tal comemorar com uma tattoo nova? Tenho um mimo especial pra você esse mês 🎁`
+    const num = c.celular.replace(/\D/g, "")
+    window.open(`https://wa.me/55${num}?text=${encodeURIComponent(msg)}`, "_blank")
   }
 
   function reativar(c: { nome: string; celular?: string }) {
@@ -358,6 +382,48 @@ export default function Dashboard() {
             </section>
           </div>
         </div>
+
+        {/* ─── Aniversariantes ─── */}
+        <section className="flash-card p-5">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2.5">
+              <Sticker.Coracao size={22} />
+              <h2 className="text-base font-black tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>Aniversariantes</h2>
+              <span className="text-xs text-muted-foreground">próximos 7 dias</span>
+            </div>
+            {!loading && aniversariantes.length > 0 && <span className="flash-tag flash-tag--pendente">{aniversariantes.length}</span>}
+          </div>
+
+          <div className="mt-4">
+            {loading ? (
+              <p className="text-sm text-muted-foreground py-4">Carregando…</p>
+            ) : aniversariantes.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">Nenhum aniversário nos próximos 7 dias.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {aniversariantes.map(c => (
+                  <div key={c.id} className="flex items-center justify-between gap-3 rounded-xl px-4 py-3" style={{ border: "2px solid var(--ink)", background: "var(--paper)" }}>
+                    <div className="min-w-0 flex items-center gap-2.5">
+                      <div className="min-w-0">
+                        <Link href={`/clientes/${c.id}`} className="text-sm font-bold hover:underline truncate block">{c.nome}</Link>
+                        <p className="text-xs" style={{ color: c.dias === 0 ? "var(--flash-red)" : "var(--muted-foreground)", fontWeight: c.dias === 0 ? 700 : 400 }}>
+                          {c.dias === 0 ? "é HOJE! 🎂" : c.dias === 1 ? "amanhã" : `em ${c.dias} dias`}
+                        </p>
+                      </div>
+                    </div>
+                    {c.celular && (
+                      <button onClick={() => parabenizar(c)}
+                        className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full shrink-0 transition-transform hover:-translate-y-0.5"
+                        style={{ background: "var(--flash-gold)", color: "var(--ink)", border: "2px solid var(--ink)" }}>
+                        <MessageCircle size={13} /> Parabéns
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
 
         {/* ─── Sumidos — reativação ─── */}
         <section className="flash-card p-5">
