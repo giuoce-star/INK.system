@@ -111,7 +111,7 @@ export default function RelatoriosPage() {
   const maxEstilo = Math.max(1, ...r.estilos.map(e => e.n))
 
   return (
-    <div className="p-8 space-y-8 max-w-5xl">
+    <div className="p-4 sm:p-8 space-y-8 max-w-5xl">
       <div className="flex items-end justify-between flex-wrap gap-4">
         <div>
           <p className="page-eyebrow flex items-center gap-2"><Sticker.Estrela size={16} /> INK.SYSTEM</p>

@@ -39,7 +39,7 @@ export default function ConfiguracoesPage() {
   }
 
   return (
-    <div className="p-8 space-y-6 max-w-xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-xl">
       <div className="space-y-1">
         <p className="page-eyebrow">Sistema</p>
         <h1 className="page-title">Configurações</h1>

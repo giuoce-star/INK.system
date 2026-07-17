@@ -70,13 +70,13 @@ export default function OrcamentoDetalhePage() {
     window.open(`https://wa.me/55${numero}?text=${encodeURIComponent(msg)}`, "_blank")
   }
 
-  if (!orc) return <div className="p-8 text-muted-foreground">Carregando...</div>
+  if (!orc) return <div className="p-4 sm:p-8 text-muted-foreground">Carregando...</div>
 
   const status = (orc.status ?? "pendente") as StatusOrc
   const cfg = statusCfg[status]
 
   return (
-    <div className="p-8 space-y-6 max-w-xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-xl">
       <div className="flex items-start justify-between">
         <div>
           {cliente && (

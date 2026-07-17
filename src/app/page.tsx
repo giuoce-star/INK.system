@@ -227,29 +227,29 @@ export default function Dashboard() {
     <div className="min-h-screen">
 
       {/* ─── Barra superior ─── */}
-      <header className="sticky top-0 z-20 flex items-center gap-4 px-8 py-3.5 bg-background/85 backdrop-blur border-b-2 border-black">
+      <header className="sticky top-14 lg:top-0 z-20 flex items-center gap-3 px-4 sm:px-8 py-3.5 bg-background/85 backdrop-blur border-b-2 border-black">
         <div className="relative flex-1 max-w-md">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
-            placeholder="Buscar cliente, projeto, orçamento…"
+            placeholder="Buscar…"
             className="w-full pl-9 pr-3 py-2 text-sm rounded-full bg-card outline-none"
             style={{ border: "2px solid var(--ink)" }}
           />
         </div>
-        <div className="flex-1" />
+        <div className="hidden sm:block flex-1" />
         <button className="relative w-9 h-9 rounded-full flex items-center justify-center bg-card" style={{ border: "2px solid var(--ink)" }} title="Notificações">
           <Bell size={16} />
         </button>
         <div className="flex items-center gap-2.5 pl-1">
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-white shrink-0" style={{ background: "var(--flash-red)", border: "2px solid var(--ink)", fontFamily: "'Syne', sans-serif" }}>G</div>
-          <div className="leading-tight">
+          <div className="leading-tight hidden sm:block">
             <p className="text-xs font-bold">Meu Estúdio</p>
             <p className="text-[10px] text-muted-foreground">Tatuador(a)</p>
           </div>
         </div>
       </header>
 
-      <div className="p-8 space-y-8">
+      <div className="p-4 sm:p-8 space-y-8">
 
         {/* Banner de conexão */}
         {erro && (

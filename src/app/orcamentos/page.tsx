@@ -47,7 +47,7 @@ export default function OrcamentosPage() {
   const total = orcamentos.reduce((a, o) => a + (o.status === "pendente" ? (o.valor ?? 0) : 0), 0)
 
   return (
-    <div className="p-10 max-w-4xl space-y-8">
+    <div className="p-4 sm:p-10 max-w-4xl space-y-8">
       <div className="flex items-end justify-between flex-wrap gap-4">
         <div className="space-y-1">
           <p className="page-eyebrow">Gestão</p>

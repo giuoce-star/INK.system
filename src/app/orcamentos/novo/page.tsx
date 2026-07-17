@@ -45,7 +45,7 @@ function NovoOrcamentoForm() {
   }
 
   return (
-    <div className="p-8 space-y-6 max-w-xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-xl">
       <div>
         <h1 className="text-2xl font-black tracking-tight">Novo Orçamento</h1>
         <p className="text-muted-foreground text-sm mt-1">Registrar proposta para um cliente</p>
@@ -90,7 +90,7 @@ function NovoOrcamentoForm() {
 
 export default function NovoOrcamentoPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-muted-foreground">Carregando...</div>}>
+    <Suspense fallback={<div className="p-4 sm:p-8 text-muted-foreground">Carregando...</div>}>
       <NovoOrcamentoForm />
     </Suspense>
   )

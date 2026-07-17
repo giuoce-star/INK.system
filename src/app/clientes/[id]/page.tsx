@@ -65,14 +65,14 @@ export default function ClienteDetalhe() {
     window.open(`https://wa.me/55${numero}?text=${encodeURIComponent(msg)}`, "_blank")
   }
 
-  if (!cliente) return <div className="p-8 text-muted-foreground">Carregando...</div>
+  if (!cliente) return <div className="p-4 sm:p-8 text-muted-foreground">Carregando...</div>
 
   const sessoesPassadas = sessoes.filter(s => !s.data || s.data < hoje)
   const sessoesFuturas = sessoes.filter(s => s.data && s.data >= hoje)
   const proximaSessao = sessoesFuturas[0] ?? null
 
   return (
-    <div className="p-8 space-y-6 max-w-3xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-3xl">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-black tracking-tight">{cliente.nome}</h1>

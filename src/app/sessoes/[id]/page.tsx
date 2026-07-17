@@ -87,13 +87,13 @@ export default function SessaoDetalhePage() {
     window.open(`https://wa.me/55${numero}?text=${encodeURIComponent(msg)}`, "_blank")
   }
 
-  if (!sessao) return <div className="p-8 text-muted-foreground">Carregando...</div>
+  if (!sessao) return <div className="p-4 sm:p-8 text-muted-foreground">Carregando...</div>
 
   const status = sessao.status ?? "agendada"
   const cfg = statusConfig[status]
 
   return (
-    <div className="p-8 space-y-6 max-w-xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-xl">
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">

@@ -58,7 +58,7 @@ function NovaSessaoForm() {
 
   return (
 
-    <div className="p-8 space-y-6 max-w-xl">
+    <div className="p-4 sm:p-8 space-y-6 max-w-xl">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Nova Sessão</h1>
         <p className="text-muted-foreground text-sm mt-1">Registrar sessão de atendimento</p>
@@ -102,7 +102,7 @@ function NovaSessaoForm() {
 
 export default function NovaSessaoPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-muted-foreground">Carregando...</div>}>
+    <Suspense fallback={<div className="p-4 sm:p-8 text-muted-foreground">Carregando...</div>}>
       <NovaSessaoForm />
     </Suspense>
   )

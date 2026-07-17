@@ -32,7 +32,7 @@ export default function ClientesPage() {
   )
 
   return (
-    <div className="p-10 max-w-4xl space-y-8">
+    <div className="p-4 sm:p-10 max-w-4xl space-y-8">
       <div className="flex items-end justify-between">
         <div className="space-y-1">
           <p className="page-eyebrow">Gestão</p>
