@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ClientePicker } from "@/components/cliente-picker"
 
 function NovoOrcamentoForm() {
   const router = useRouter()
@@ -56,13 +56,8 @@ function NovoOrcamentoForm() {
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
             <Label>Cliente *</Label>
-            <Select value={clienteId} onValueChange={v => setClienteId(v ?? "")}>
-              <SelectTrigger><SelectValue placeholder="Selecione o cliente..." /></SelectTrigger>
-              <SelectContent>
-                {clientes.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">O orçamento é para um cliente cadastrado. Cadastre o cliente antes, se necessário.</p>
+            <ClientePicker clientes={clientes} value={clienteId} onChange={setClienteId} />
+            <p className="text-xs text-muted-foreground">Digite para buscar. O orçamento é para um cliente cadastrado — cadastre antes, se necessário.</p>
           </div>
           <div className="space-y-1.5">
             <Label>Descrição / ideia da tattoo</Label>

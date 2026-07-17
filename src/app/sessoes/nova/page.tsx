@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ClientePicker } from "@/components/cliente-picker"
 
 function NovaSessaoForm() {
   const router = useRouter()
@@ -69,16 +69,7 @@ function NovaSessaoForm() {
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
             <Label>Cliente *</Label>
-            <Select value={clienteId} onValueChange={v => setClienteId(v ?? "")}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o cliente..." />
-              </SelectTrigger>
-              <SelectContent>
-                {clientes.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ClientePicker clientes={clientes} value={clienteId} onChange={setClienteId} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
