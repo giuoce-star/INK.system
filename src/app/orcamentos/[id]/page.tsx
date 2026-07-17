@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Trash2, Save, ArrowLeft, MessageCircle, CheckCircle2, XCircle, CalendarPlus } from "lucide-react"
+import { Trash2, Save, ArrowLeft, MessageCircle, CheckCircle2, XCircle, CalendarPlus, FileText } from "lucide-react"
 import Link from "next/link"
 
 type StatusOrc = "pendente" | "aprovado" | "recusado"
@@ -89,7 +89,12 @@ export default function OrcamentoDetalhePage() {
             <span className={`flash-tag ${cfg.cls}`}>{cfg.label}</span>
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Link href={`/orcamentos/${id}/invoice`}>
+            <Button size="sm" className="gap-2">
+              <FileText size={14} /> Invoice
+            </Button>
+          </Link>
           {cliente?.celular && (
             <Button size="sm" variant="outline" className="gap-2" onClick={enviarWhatsApp}>
               <MessageCircle size={14} /> Enviar

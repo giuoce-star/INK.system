@@ -51,7 +51,7 @@ export function Sidebar() {
   return (
     <>
       {/* ─── Barra fixa do mobile ─── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4 bg-sidebar border-b-2 border-black">
+      <div className="no-print lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4 bg-sidebar border-b-2 border-black">
         <div className="flex items-center gap-2">
           <Sticker.Rosa size={26} />
           <span className="text-lg font-black leading-none" style={{ fontFamily: "'Syne', sans-serif", color: "#fff" }}>

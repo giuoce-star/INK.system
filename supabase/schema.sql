@@ -104,7 +104,9 @@ create table estoque (
 
 create table configuracoes (
   id integer primary key default 1,
-  mensagem_whatsapp_padrao text
+  mensagem_whatsapp_padrao text,
+  nome_estudio text,
+  contato_estudio text
 );
 
 insert into configuracoes (id, mensagem_whatsapp_padrao)
