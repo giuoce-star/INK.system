@@ -227,7 +227,7 @@ export default function Dashboard() {
     <div className="min-h-screen">
 
       {/* ─── Barra superior ─── */}
-      <header className="sticky top-14 lg:top-0 z-20 flex items-center gap-3 px-4 sm:px-8 py-3.5 bg-background/85 backdrop-blur border-b-2 border-black">
+      <header className="lg:sticky lg:top-0 z-20 flex items-center gap-3 px-4 sm:px-8 py-3.5 bg-background/85 backdrop-blur border-b-2 border-black">
         <div className="relative flex-1 max-w-md">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
