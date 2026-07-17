@@ -50,6 +50,8 @@ export default function SessaoDetalhePage() {
       data: sessao.data,
       horario: sessao.horario,
       valor: sessao.valor,
+      sinal: sessao.sinal ?? null,
+      sinal_pago: sessao.sinal_pago ?? false,
       observacoes: sessao.observacoes,
     }).eq("id", id)
     setSalvando(false)
@@ -135,10 +137,27 @@ export default function SessaoDetalhePage() {
               <Input type="time" value={sessao.horario?.slice(0, 5) ?? ""} onChange={e => setSessao(s => s ? { ...s, horario: e.target.value } : s)} />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label>Valor (R$)</Label>
-            <Input type="number" step="0.01" value={sessao.valor ?? ""} onChange={e => setSessao(s => s ? { ...s, valor: Number(e.target.value) } : s)} />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Valor total (R$)</Label>
+              <Input type="number" step="0.01" value={sessao.valor ?? ""} onChange={e => setSessao(s => s ? { ...s, valor: Number(e.target.value) } : s)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Sinal (R$)</Label>
+              <Input type="number" step="0.01" value={sessao.sinal ?? ""} onChange={e => setSessao(s => s ? { ...s, sinal: Number(e.target.value) } : s)} />
+            </div>
           </div>
+          {!!sessao.sinal && sessao.sinal > 0 && (
+            <div className="flex items-center justify-between gap-3 rounded-xl px-4 py-3 flex-wrap" style={{ border: "2px solid var(--ink)", background: "var(--paper)" }}>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" checked={!!sessao.sinal_pago} onChange={e => setSessao(s => s ? { ...s, sinal_pago: e.target.checked } : s)} className="accent-primary w-4 h-4" />
+                Sinal recebido
+              </label>
+              <span className="text-sm">
+                Restante: <b style={{ fontFamily: "'Syne', sans-serif" }}>R$ {Math.max(0, (sessao.valor ?? 0) - (sessao.sinal ?? 0)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</b>
+              </span>
+            </div>
+          )}
           <div className="space-y-1.5">
             <Label>Observações</Label>
             <Textarea value={sessao.observacoes ?? ""} onChange={e => setSessao(s => s ? { ...s, observacoes: e.target.value } : s)} rows={3} />

@@ -40,6 +40,8 @@ create table sessoes (
   data date,
   horario time,
   valor numeric(10,2),
+  sinal numeric(10,2),
+  sinal_pago boolean default false,
   status text not null default 'agendada'
     check (status in ('agendada', 'realizada', 'remarcada', 'faltou')),
   observacoes text,

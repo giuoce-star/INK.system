@@ -22,6 +22,7 @@ function NovaSessaoForm() {
   const [data, setData] = useState("")
   const [horario, setHorario] = useState("")
   const [valor, setValor] = useState("")
+  const [sinal, setSinal] = useState("")
   const [obs, setObs] = useState("")
   const [salvando, setSalvando] = useState(false)
 
@@ -49,6 +50,7 @@ function NovaSessaoForm() {
       data: data || null,
       horario: horario || null,
       valor: valor ? Number(valor) : null,
+      sinal: sinal ? Number(sinal) : null,
       observacoes: obs || null,
     }).select().single()
 
@@ -81,10 +83,21 @@ function NovaSessaoForm() {
               <Input type="time" value={horario} onChange={e => setHorario(e.target.value)} />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label>Valor (R$)</Label>
-            <Input type="number" step="0.01" value={valor} onChange={e => setValor(e.target.value)} placeholder="0,00" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Valor total (R$)</Label>
+              <Input type="number" step="0.01" value={valor} onChange={e => setValor(e.target.value)} placeholder="0,00" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Sinal (R$)</Label>
+              <Input type="number" step="0.01" value={sinal} onChange={e => setSinal(e.target.value)} placeholder="0,00" />
+            </div>
           </div>
+          {valor && sinal && Number(valor) >= Number(sinal) && (
+            <p className="text-xs text-muted-foreground">
+              Restante a receber: <b>R$ {(Number(valor) - Number(sinal)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</b>
+            </p>
+          )}
           <div className="space-y-1.5">
             <Label>Observações</Label>
             <Textarea value={obs} onChange={e => setObs(e.target.value)} rows={3} />

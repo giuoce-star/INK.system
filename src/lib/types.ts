@@ -38,6 +38,9 @@ export interface Sessao {
   data?: string
   horario?: string
   valor?: number
+  /** Sinal cobrado para reservar o horário. */
+  sinal?: number
+  sinal_pago?: boolean
   observacoes?: string
   status?: 'agendada' | 'realizada' | 'remarcada' | 'faltou'
   created_at?: string
