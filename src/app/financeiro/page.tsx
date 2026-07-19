@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight, Plus, Trash2, ArrowUpRight, ArrowDownRight, Check } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, Trash2, ArrowUpRight, ArrowDownRight, Check, Upload } from "lucide-react"
 import { Sticker } from "@/components/stickers"
+import Link from "next/link"
 
 const CAT_ENTRADA = ["Tatuagem", "Sinal / entrada", "Venda de produto", "Outros"]
 const CAT_SAIDA = ["Material", "Aluguel", "Energia", "Marketing", "Impostos", "Comissão", "Manutenção", "Outros"]
@@ -118,7 +119,10 @@ export default function FinanceiroPage() {
           <h1 className="page-title mt-1">Financeiro</h1>
           <p className="text-sm text-muted-foreground mt-1.5">Livro-caixa do estúdio</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link href="/financeiro/importar" className="flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-transform hover:-translate-y-0.5" style={{ background: "var(--card)", border: "2px solid var(--ink)", boxShadow: "3px 3px 0 0 var(--ink)", fontFamily: "'Syne', sans-serif" }}>
+            <Upload size={14} /> Importar extrato
+          </Link>
           <button onClick={() => mudarMes(-1)} className="w-9 h-9 rounded-full flex items-center justify-center bg-card" style={{ border: "2px solid var(--ink)" }}><ChevronLeft size={16} /></button>
           <span className="text-sm font-black min-w-[9.5rem] text-center" style={{ fontFamily: "'Syne', sans-serif" }}>{mesNome[ref.mes]} {ref.ano}</span>
           <button onClick={() => mudarMes(1)} className="w-9 h-9 rounded-full flex items-center justify-center bg-card" style={{ border: "2px solid var(--ink)" }}><ChevronRight size={16} /></button>
