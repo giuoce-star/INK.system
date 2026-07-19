@@ -85,6 +85,9 @@ export interface Lancamento {
   valor: number
   data: string
   pago: boolean
+  /** Vínculo com a sessão que gerou o lançamento (automático). */
+  sessao_id?: string | null
+  origem?: 'sinal' | 'servico' | null
   created_at?: string
 }
 

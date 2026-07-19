@@ -90,6 +90,8 @@ create table lancamentos (
   valor numeric(10,2) not null default 0,
   data date not null default current_date,
   pago boolean not null default true,
+  sessao_id uuid references sessoes(id) on delete cascade,
+  origem text,
   created_at timestamptz default now()
 );
 

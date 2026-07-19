@@ -43,6 +43,24 @@ export default function SessaoDetalhePage() {
     })
   }, [id])
 
+  // Reflete o sinal + pagamento da sessão no Financeiro (sem duplicar).
+  async function sincronizarFinanceiro(sess: Sessao) {
+    const hojeIso = new Date().toISOString().split("T")[0]
+    const nome = cliente?.nome ?? "cliente"
+    await supabase.from("lancamentos").delete().eq("sessao_id", sess.id)
+    const rows: Record<string, unknown>[] = []
+    if (sess.sinal_pago && (sess.sinal ?? 0) > 0) {
+      rows.push({ tipo: "entrada", categoria: "Sinal / entrada", descricao: `Sinal — ${nome}`, valor: sess.sinal, data: sess.data || hojeIso, pago: true, sessao_id: sess.id, origem: "sinal" })
+    }
+    if (sess.status === "realizada") {
+      const restante = Math.max(0, (sess.valor ?? 0) - (sess.sinal_pago ? (sess.sinal ?? 0) : 0))
+      if (restante > 0) {
+        rows.push({ tipo: "entrada", categoria: "Tatuagem", descricao: `Sessão #${sess.numero_sessao} — ${nome}`, valor: restante, data: sess.data || hojeIso, pago: true, sessao_id: sess.id, origem: "servico" })
+      }
+    }
+    if (rows.length) await supabase.from("lancamentos").insert(rows)
+  }
+
   async function salvar() {
     if (!sessao) return
     setSalvando(true)
@@ -54,6 +72,7 @@ export default function SessaoDetalhePage() {
       sinal_pago: sessao.sinal_pago ?? false,
       observacoes: sessao.observacoes,
     }).eq("id", id)
+    await sincronizarFinanceiro(sessao)
     setSalvando(false)
   }
 
@@ -61,7 +80,9 @@ export default function SessaoDetalhePage() {
     if (!sessao) return
     setMarcando(true)
     await supabase.from("sessoes").update({ status: "realizada" }).eq("id", id)
-    setSessao(s => s ? { ...s, status: "realizada" } : s)
+    const atual = { ...sessao, status: "realizada" as const }
+    setSessao(atual)
+    await sincronizarFinanceiro(atual)
     setMarcando(false)
   }
 
@@ -69,7 +90,9 @@ export default function SessaoDetalhePage() {
     if (!sessao) return
     setMarcando(true)
     await supabase.from("sessoes").update({ status: "faltou" }).eq("id", id)
-    setSessao(s => s ? { ...s, status: "faltou" } : s)
+    const atual = { ...sessao, status: "faltou" as const }
+    setSessao(atual)
+    await sincronizarFinanceiro(atual)
     setMarcando(false)
   }
 
