@@ -51,6 +51,38 @@ export default function FinanceiroPage() {
   const aPagar = doMes.filter(l => l.tipo === "saida" && !l.pago).reduce((a, l) => a + l.valor, 0)
   const saldo = entradas - saidas
 
+  /* ─── Análise automática ─── */
+  const margem = entradas > 0 ? Math.round((saldo / entradas) * 100) : 0
+  const pesoDespesa = entradas > 0 ? Math.round((saidas / entradas) * 100) : 0
+
+  // para onde vai o dinheiro: saídas do mês agrupadas por categoria
+  const porCategoria = (() => {
+    const mapa = new Map<string, number>()
+    doMes.filter(l => l.tipo === "saida" && l.pago).forEach(l => {
+      const c = (l.categoria || "Outros").trim()
+      mapa.set(c, (mapa.get(c) ?? 0) + l.valor)
+    })
+    return [...mapa.entries()].map(([cat, v]) => ({ cat, v })).sort((a, b) => b.v - a.v)
+  })()
+  const maxCat = Math.max(1, ...porCategoria.map(c => c.v))
+
+  // evolução: entradas x saídas nos últimos 6 meses
+  const evolucao = (() => {
+    const out: { label: string; ent: number; sai: number }[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(ref.ano, ref.mes - i, 1)
+      const ini = iso(d), fim = iso(new Date(d.getFullYear(), d.getMonth() + 1, 0))
+      const noMes = lancamentos.filter(l => l.data >= ini && l.data <= fim && l.pago)
+      out.push({
+        label: mesNome[d.getMonth()].slice(0, 3).toLowerCase(),
+        ent: noMes.filter(l => l.tipo === "entrada").reduce((a, l) => a + l.valor, 0),
+        sai: noMes.filter(l => l.tipo === "saida").reduce((a, l) => a + l.valor, 0),
+      })
+    }
+    return out
+  })()
+  const maxEvo = Math.max(1, ...evolucao.flatMap(e => [e.ent, e.sai]))
+
   async function adicionar() {
     if (!valor || Number(valor) <= 0) return alert("Informe um valor.")
     setSalvando(true)
@@ -204,6 +236,92 @@ export default function FinanceiroPage() {
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      {/* ─── Análise automática ─── */}
+      <section className="flash-card p-5">
+        <div className="flex items-center gap-2.5 mb-1">
+          <Sticker.Rosa size={22} />
+          <h2 className="text-base font-black tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>Análise financeira</h2>
+        </div>
+        <p className="text-xs text-muted-foreground">Calculada sozinha a partir dos seus lançamentos.</p>
+
+        {loading ? (
+          <p className="text-sm text-muted-foreground py-4">Carregando…</p>
+        ) : (
+          <>
+            {/* indicadores */}
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="rounded-xl px-4 py-3" style={{ border: "2px solid var(--ink)", background: "var(--paper)" }}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Margem de lucro</p>
+                <p className="text-2xl font-black leading-none mt-1" style={{ fontFamily: "'Syne', sans-serif", color: margem >= 0 ? "var(--flash-teal)" : "var(--flash-red)" }}>{margem}%</p>
+                <p className="text-[11px] text-muted-foreground mt-1">do que entrou, sobrou isso</p>
+              </div>
+              <div className="rounded-xl px-4 py-3" style={{ border: "2px solid var(--ink)", background: "var(--paper)" }}>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Peso das despesas</p>
+                <p className="text-2xl font-black leading-none mt-1" style={{ fontFamily: "'Syne', sans-serif" }}>{pesoDespesa}%</p>
+                <p className="text-[11px] text-muted-foreground mt-1">do faturamento vira custo</p>
+              </div>
+            </div>
+
+            {/* para onde vai o dinheiro */}
+            <div className="mt-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Para onde vai o dinheiro</p>
+              {porCategoria.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Nenhuma despesa registrada neste mês.</p>
+              ) : (
+                <div className="space-y-2.5">
+                  {porCategoria.map(c => (
+                    <div key={c.cat}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="font-semibold">{c.cat}</span>
+                        <span className="text-muted-foreground font-bold tabular-nums">
+                          {brl(c.v)} · {saidas > 0 ? Math.round((c.v / saidas) * 100) : 0}%
+                        </span>
+                      </div>
+                      <div className="h-2.5 rounded-full" style={{ background: "var(--muted)", border: "1.5px solid var(--ink)" }}>
+                        <div className="h-full rounded-full" style={{ width: `${Math.round((c.v / maxCat) * 100)}%`, background: "var(--flash-red)" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* evolução */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Entradas × Saídas (6 meses)</p>
+                <div className="flex items-center gap-3 text-[11px]">
+                  <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: "var(--flash-teal)", border: "1.5px solid var(--ink)" }} /> entradas</span>
+                  <span className="flex items-center gap-1"><span className="inline-block w-3 h-3 rounded-sm" style={{ background: "var(--flash-red)", border: "1.5px solid var(--ink)" }} /> saídas</span>
+                </div>
+              </div>
+              <div className="flex items-end gap-2 h-36" style={{ borderBottom: "2px solid var(--ink)" }}>
+                {evolucao.map((e, i) => (
+                  <div key={i} className="flex-1 h-full flex items-end justify-center gap-[3px]">
+                    <div className="w-1/2 rounded-t-sm" title={`entradas ${brl(e.ent)}`}
+                      style={{ height: `${Math.round((e.ent / maxEvo) * 100)}%`, minHeight: 2, background: "var(--flash-teal)", border: "1.5px solid var(--ink)", borderBottom: "none", opacity: e.ent > 0 ? 1 : 0.25 }} />
+                    <div className="w-1/2 rounded-t-sm" title={`saídas ${brl(e.sai)}`}
+                      style={{ height: `${Math.round((e.sai / maxEvo) * 100)}%`, minHeight: 2, background: "var(--flash-red)", border: "1.5px solid var(--ink)", borderBottom: "none", opacity: e.sai > 0 ? 1 : 0.25 }} />
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-1.5">
+                {evolucao.map((e, i) => <span key={i} className="flex-1 text-center text-[10px] text-muted-foreground font-medium">{e.label}</span>)}
+              </div>
+            </div>
+
+            {/* leitura automática */}
+            {entradas > 0 && (
+              <div className="mt-5 rounded-xl px-4 py-3 text-sm" style={{ border: "2px dashed var(--ink)", background: "var(--paper)" }}>
+                {saldo >= 0
+                  ? <>Neste mês você faturou <b>{brl(entradas)}</b>, gastou <b>{brl(saidas)}</b> e <b style={{ color: "var(--flash-teal)" }}>sobrou {brl(saldo)}</b>.{porCategoria[0] && <> Seu maior custo é <b>{porCategoria[0].cat}</b>.</>}</>
+                  : <>Atenção: você gastou <b style={{ color: "var(--flash-red)" }}>{brl(Math.abs(saldo))} a mais</b> do que faturou neste mês.{porCategoria[0] && <> O maior custo é <b>{porCategoria[0].cat}</b>.</>}</>}
+              </div>
+            )}
+          </>
         )}
       </section>
     </div>
