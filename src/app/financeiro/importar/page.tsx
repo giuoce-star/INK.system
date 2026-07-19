@@ -169,7 +169,7 @@ export default function ImportarPage() {
         </Link>
         <p className="page-eyebrow flex items-center gap-2"><Sticker.Estrela size={16} /> INK.SYSTEM</p>
         <h1 className="page-title mt-1">Importar extrato</h1>
-        <p className="text-sm text-muted-foreground mt-1.5">Suba um CSV ou cole o texto do extrato. Você confere tudo antes de salvar.</p>
+        <p className="text-sm text-muted-foreground mt-1.5">Suba um arquivo CSV ou cole as linhas do extrato. Você confere tudo antes de salvar.</p>
       </div>
 
       {/* Entradas de dados */}
@@ -187,9 +187,9 @@ export default function ImportarPage() {
         <section className="flash-card p-5">
           <div className="flex items-center gap-2.5 mb-3">
             <FileText size={18} />
-            <h2 className="text-base font-black tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>Colar do PDF</h2>
+            <h2 className="text-base font-black tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>Colar texto</h2>
           </div>
-          <p className="text-xs text-muted-foreground mb-3">Abra o PDF, selecione tudo (Ctrl+A), copie (Ctrl+C) e cole abaixo.</p>
+          <p className="text-xs text-muted-foreground mb-3">Copie as linhas do extrato (do site do banco, e-mail ou PDF aberto) e cole aqui.</p>
           <Textarea value={texto} onChange={e => setTexto(e.target.value)} rows={4} placeholder="Cole aqui o texto do extrato..." />
           <Button size="sm" className="mt-3 gap-2" onClick={analisarTexto} disabled={!texto.trim()}>
             Analisar texto
